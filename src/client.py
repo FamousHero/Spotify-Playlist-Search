@@ -1,12 +1,17 @@
 import requests
 import spotipy
 import tkinter as tk
+import webbrowser
 client_id = YOUR_CLIENT_ID
 client_secret = YOUR_CLIENT_SECRET
 redirect_uri = 'http://127.0.0.1:9090'
 scope = ["playlist-read-private", "playlist-read-collaborative","user-top-read"]
-user = spotipy.Spotify(auth_manager = spotipy.SpotifyOAuth(client_id = client_id,
-client_secret = client_secret, redirect_uri= redirect_uri, scope= scope))
+#redirect to user login if no auth token or refresh token expired
+#Sooooooooo if a refresh token has expired then clear the cache associated
+#with it
+auth_manager = spotipy.SpotifyOAuth(client_id = client_id,
+client_secret = client_secret, redirect_uri= redirect_uri, scope= scope)
+user = spotipy.Spotify(auth_manager = auth_manager)
 playlists = user.current_user_playlists()
 amount_of_playlists_left = playlists["total"] - 50
 offset = 50
@@ -34,7 +39,7 @@ if(len(playlists_with_song) <= 0):
 else:
     for playlist in playlists_with_song:
         print(playlist)
-    
+#need a login and a logout
 
 #want to print the name of playlists with track in it
 #check the song by unique id since names can repeat
