@@ -22,8 +22,6 @@ class Client:
         client_secret = client_secret, redirect_uri= redirect_uri, scope= scope)
         user = spotipy.Spotify(auth_manager = auth_manager)
         playlists = user.current_user_playlists()
-        amount_of_playlists_left = playlists["total"] - 50
-            for dict in playlists_to_add["items"]:
         amount_of_playlists_left = playlists["total"] 
         self.get_total_info(user, playlists, "playlist", amount_of_playlists_left)        
         if searchType == "name":
