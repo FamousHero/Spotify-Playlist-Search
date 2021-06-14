@@ -13,3 +13,5 @@ while(run):
         "\nWould you like to search again: (Yes/No)\n")
     elif(search_by_name.lower() == "no"):
         run = False
+    else:
+        search_by_name = input()

@@ -9,8 +9,6 @@ class Client:
     #                   1)add a way to check cache for current spotify account
     #                   2)search with current song (by song_id)
     #                   3) clear user tokens when they logout
-    
-    #Bugs: only checks the 1st 100 of eah playlist
     def __init__(self):
         pass
     def search(self, searchType):
@@ -25,13 +23,9 @@ class Client:
         user = spotipy.Spotify(auth_manager = auth_manager)
         playlists = user.current_user_playlists()
         amount_of_playlists_left = playlists["total"] - 50
-        offset = 50
-        while(amount_of_playlists_left > 0):
-            playlists_to_add = user.current_user_playlists(offset=offset)
             for dict in playlists_to_add["items"]:
-                playlists["items"].append(dict)
-            amount_of_playlists_left -= 50
-            offset += 50
+        amount_of_playlists_left = playlists["total"] 
+        self.get_total_info(user, playlists, "playlist", amount_of_playlists_left)        
         if searchType == "name":
            self.search_by_name(input, playlists, user)
         #elif searchType == "current_song":
@@ -47,19 +41,30 @@ class Client:
         playlists_with_song = []
         for name in playlists_name_id:
             tracks = user.playlist_tracks(playlist_id = playlists_name_id[name], 
-            fields= "items(track(name))")
-            for index in range(len(tracks["items"])):
-                if song_name == tracks["items"][index]["track"]["name"]:
-                    playlists_with_song.append(name)
+            fields= "items(track(name)), total")
+            self.get_total_info(user, tracks, "tracks", tracks["total"], playlists_name_id[name])
+            for index in range(tracks["total"]):
+                if tracks["items"][index]["track"] != None:
+                    if song_name == tracks["items"][index]["track"]["name"]:
+                        playlists_with_song.append(name)
         if(len(playlists_with_song) <= 0):
             print("\tError: No playlist currently has this song")
         else:
             for playlist in playlists_with_song:
                 print("\t"+playlist)
 
-
-    #gives name of every playlist
-    
-
-    #want to print the name of playlists with track in it
-    #check the song by unique id since names can repeat
+    def get_total_info(sef, user, container, type, total, playlist_id = None):
+        if type == "playlist":
+            offset = 50
+            while(total > offset):
+                playlists_to_add = user.current_user_playlists(offset=offset)
+                container["items"].extend(playlists_to_add["items"])
+                offset += 50
+        elif type == "tracks":
+            offset = 100
+            while(total > offset):
+                tracks_to_add = user.playlist_tracks(playlist_id = playlist_id, 
+                                                    fields= "items(track(name))", offset = offset)
+                container["items"].extend(tracks_to_add["items"])
+                offset += 100
+        return
