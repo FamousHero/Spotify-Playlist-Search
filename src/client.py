@@ -2,13 +2,13 @@ import requests
 import spotipy
 import webbrowser
 import time
+
 class Client:
-    #implement gui to   1)take current song or a song name
-    #                   2)Ask for a new search
-    #                   3) allow user to logout
+    #implement gui to
+    #                   1) allow user to logout
+    #
     #implement in code
     #                   1)add a way to check cache for current spotify account
-    #                   2)search with current song (by song_id)
     #                   3) clear user tokens when they logout
     #                   4) possible create a database storing playlists and their songs
     #                   so that you dont have to get the info from the api every call (.2 per playlist,
@@ -23,8 +23,10 @@ class Client:
         """Get the users playlists and pass it to the specified search"""
         client_id = YOUR_CLIENT_ID
         client_secret = YOUR_CLIENT_SECRET
+
         redirect_uri = 'http://127.0.0.1:9090'
-        scope = ["playlist-read-private", "playlist-read-collaborative","user-top-read"]
+        scope = ["playlist-read-private", "playlist-read-collaborative"
+                ,"user-top-read", "user-read-currently-playing"]
         
         auth_manager = spotipy.SpotifyOAuth(client_id = client_id,
         client_secret = client_secret, redirect_uri= redirect_uri, scope= scope)
@@ -33,11 +35,16 @@ class Client:
         amount_of_playlists = playlists["total"] 
         self.get_total_info(user, playlists, "playlist", amount_of_playlists)        
         if searchType == "name":
-           return str(self.search_by_name(name, playlists, user))
+           return self.search_by_name(name, playlists, user)
         
-        #elif searchType == "current_song":
-        #   search_by_current_song(client_id, client_secret, redirect_uri)
-        return
+        elif searchType == "current_song":
+            song_name = user.current_user_playing_track()
+            song_name = song_name["item"]["name"]
+            return self.search_by_name(song_name, playlists, user)
+
+
+
+
     def search_by_name(self, song_name, playlists, user):
         returnstring = song_name + " is in:\n"
         playlists_name_id = {}
@@ -79,6 +86,3 @@ class Client:
                 container["items"].extend(tracks_to_add["items"])
                 offset += 100
         return
-
-    def search_song_in_playlists(self, song_name, tracks):
-        pass

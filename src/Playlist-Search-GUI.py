@@ -33,14 +33,14 @@ def GUI():
     
 
     searchbutton =tk.Button(master=root_window, text="Search", command=lambda:display("name", songname.get()))
-    searchbutton.grid(row=2, column=1)
+    searchbutton.grid(row=2, rowspan=2, column=1)
 
-    def display(type, songname):
+    currentbutton = tk.Button(master=root_window, text="Search current Song", command= lambda:display("current_song"))
+    currentbutton.grid(row=3, column=1)
+    def display(type, songname=None):
         playlists_to_display=client.search(type, songname)
         centerlabel['text'] = playlists_to_display
         centerlabel['font'] = ("Lucida Calligraphy", "16")
-    #frame = tk.Entry(root_window, text=30)
-    #frame.grid(row=1, column=1,stick= "EW")
 
     root_window.mainloop()
 
