@@ -1,4 +1,4 @@
-# Spotify-Song-Search
+# Spotify-Playlist-Search
 Input a song to search within your playlists and return what playlists it's in
 To do so you must:
 
