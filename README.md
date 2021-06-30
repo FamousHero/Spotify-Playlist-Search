@@ -26,3 +26,6 @@ To do so you must:
     11) Type Playlist-Search-GUI.py
   
 Repeat steps 7-11 anytime you want to use the app
+
+Home Screen
+![Playlist Search Home Screen](Images/spotify_api_home.png)
