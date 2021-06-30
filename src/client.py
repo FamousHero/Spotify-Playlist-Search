@@ -19,8 +19,10 @@ class Client:
     #                   do the same for tracks
     def __init__(self):
         pass
-    def search(self, searchType, name=None):
+    def search(self, searchType, songname=None, artist=None):
         """Get the users playlists and pass it to the specified search"""
+        song_id = None
+
         client_id = YOUR_CLIENT_ID
         client_secret = YOUR_CLIENT_SECRET
 
@@ -33,43 +35,50 @@ class Client:
         user = spotipy.Spotify(auth_manager = auth_manager)
         playlists = user.current_user_playlists()
         amount_of_playlists = playlists["total"] 
-        self.get_total_info(user, playlists, "playlist", amount_of_playlists)        
-        if searchType == "name":
-           return self.search_by_name(name, playlists, user)
+        self.get_total_info(user, playlists, "playlist", amount_of_playlists) 
         
-        elif searchType == "current_song":
-            song_name = user.current_user_playing_track()
-            song_name = song_name["item"]["name"]
-            return self.search_by_name(song_name, playlists, user)
+        if(searchType == "current_song"):
+           temp = user.current_user_playing_track()
+           artist = temp["item"]["artists"][0]["name"]
+           songname = temp["item"]["name"]
+           song_id = temp["item"]["external_ids"]["isrc"]
+           del temp
 
-
-
-
-    def search_by_name(self, song_name, playlists, user):
-        returnstring = song_name + " is in:\n"
+        header = songname
+        if(artist != None):
+            header += " by " + artist
+        header += " is in:\n"
+        returnstring = header 
         playlists_name_id = {}
         for index in range(len(playlists["items"])):
             playlists_name_id[playlists["items"][index]["name"]] = playlists["items"][index]["id"]
-        playlists_with_song = []
-        search_timer = time.time()
-        #self.search_song_in_playlists()
-        for name in playlists_name_id:
-            track_time = time.time()
-            tracks = user.playlist_tracks(playlist_id = playlists_name_id[name], 
-            fields= "items(track(name)), total")
-            self.get_total_info(user, tracks, "tracks", tracks["total"], playlists_name_id[name])
-            mid_index = tracks["total"]
-            for index in range(tracks["total"]):
-                if tracks["items"][index]["track"] != None:
-                    if song_name == tracks["items"][index]["track"]["name"]:
-                        returnstring += name+"\n"
-        if(returnstring == song_name + " is in:\n"):
+        
+        for playlist in playlists_name_id:
+            if(searchType == "name"):
+                tracks = user.playlist_tracks(playlist_id = playlists_name_id[playlist], 
+                fields= "items(track(album(artists), name)), total")
+                self.get_total_info(user, tracks, "track_name", tracks["total"], playlists_name_id[playlist])
+                for index in range(tracks["total"]):
+                    if tracks["items"][index]["track"] != None:
+                        if songname == tracks["items"][index]["track"]["name"]:
+                            if artist == None:
+                                returnstring += playlist+"\n"
+                            elif artist.lower() == tracks["items"][index]["track"]["album"]["artists"][0]["name"].lower():
+                                returnstring += playlist+"\n"
+            elif(searchType == "current_song"):
+                tracks = user.playlist_tracks(playlist_id = playlists_name_id[playlist], 
+                fields= "items(track(external_ids)), total")
+                self.get_total_info(user, tracks, "track_ids", tracks["total"], playlists_name_id[playlist])
+                for index in range(tracks["total"]):
+                    if tracks["items"][index]["track"] != None and tracks["items"][index]["track"]["external_ids"] != {}:
+                        if song_id == tracks["items"][index]["track"]["external_ids"]["isrc"]:
+                            returnstring += playlist+"\n"
+                        
+        if(returnstring == header):
             return "\tError: No playlist currently has this song"
         else:
-            #for playlist in playlists_with_song:
-            #    print("\t"+playlist)
-            #print("search_by_name() time: %s" % (time.time()-search_timer))
             return returnstring
+
 
     def get_total_info(self, user, container, type, total, playlist_id = None):
         if type == "playlist":
@@ -78,11 +87,19 @@ class Client:
                 playlists_to_add = user.current_user_playlists(offset=offset)
                 container["items"].extend(playlists_to_add["items"])
                 offset += 50
-        elif type == "tracks":
+        elif type == "track_name":
             offset = 100
             while(total > offset):
                 tracks_to_add = user.playlist_tracks(playlist_id = playlist_id, 
-                                                    fields= "items(track(name))", offset = offset)
+                                                    fields= "items(track(album(artists),name))", offset = offset)
                 container["items"].extend(tracks_to_add["items"])
                 offset += 100
+        elif type == "track_ids":
+            offset = 100
+            while(total > offset):
+                tracks_to_add = user.playlist_tracks(playlist_id = playlist_id, 
+                                                    fields= "items(track(external_ids(isrc)))", offset = offset)
+                container["items"].extend(tracks_to_add["items"])
+                offset += 100
+
         return

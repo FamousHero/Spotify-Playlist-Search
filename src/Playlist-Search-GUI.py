@@ -30,15 +30,21 @@ def GUI():
     songname = tk.Entry(root_window, justify="center")
     songname.grid(row=1, column=1, sticky="EW")
     songname.insert(0, "What song would you like to search")
+    artistname = tk.Entry(root_window, justify="center")
+    artistname.grid(row=1, rowspan=2, column=1, sticky ="EW")
+    artistname.insert(0, "Artist's name (optional)")
     
 
-    searchbutton =tk.Button(master=root_window, text="Search", command=lambda:display("name", songname.get()))
+    searchbutton =tk.Button(master=root_window, text="Search", command=lambda:display("name", songname.get(), artistname.get())) # <-- artistname.get()
     searchbutton.grid(row=2, rowspan=2, column=1)
 
     currentbutton = tk.Button(master=root_window, text="Search current Song", command= lambda:display("current_song"))
     currentbutton.grid(row=3, column=1)
-    def display(type, songname=None):
-        playlists_to_display=client.search(type, songname)
+    
+    def display(type, songname=None, artist=None):
+        if artist == "Artist's name (optional)" or artist == "":
+            artist = None
+        playlists_to_display=client.search(type, songname, artist)
         centerlabel['text'] = playlists_to_display
         centerlabel['font'] = ("Lucida Calligraphy", "16")
 
