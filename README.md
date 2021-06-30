@@ -27,5 +27,18 @@ To do so you must:
   
 Repeat steps 7-11 anytime you want to use the app
 
-Home Screen
+## Home Screen
+
 ![Playlist Search Home Screen](Images/spotify_api_home.png)
+
+## Search by Current Song
+
+![Playlist Search Current Song](Images/spotify_api_current_song.png)
+
+## Search by Name
+
+![Playlist Search by Name](Images/spotify_api_name.png)
+
+## Search by Name and Artist
+
+![Playlist Search Name and Artist](Images/spotify_api_name_and_artist.png)
