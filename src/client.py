@@ -70,7 +70,7 @@ class Client:
                 fields= "items(track(external_ids)), total")
                 self.get_total_info(user, tracks, "track_ids", tracks["total"], playlists_name_id[playlist])
                 for index in range(tracks["total"]):
-                    if tracks["items"][index]["track"] != None and tracks["items"][index]["track"]["external_ids"] != {}:
+                    if tracks["items"][index]["track"] != None and "isrc" in tracks["items"][index]["track"]["external_ids"]:
                         if song_id == tracks["items"][index]["track"]["external_ids"]["isrc"]:
                             returnstring += playlist+"\n"
                         
@@ -101,5 +101,6 @@ class Client:
                                                     fields= "items(track(external_ids(isrc)))", offset = offset)
                 container["items"].extend(tracks_to_add["items"])
                 offset += 100
-
         return
+
+
